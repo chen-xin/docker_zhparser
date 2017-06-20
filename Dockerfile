@@ -37,7 +37,7 @@ RUN apt-get update \
   && cd /zhparser-master \
   && SCWS_HOME=/usr/local make && make install \
   # pg_trgm is recommend but not required.
-  && echo -e "CREATE EXTENSION pg_trgm; \n\
+  && echo "CREATE EXTENSION pg_trgm; \n\
 CREATE EXTENSION zhparser; \n\
 CREATE TEXT SEARCH CONFIGURATION chinese_zh (PARSER = zhparser); \n\
 ALTER TEXT SEARCH CONFIGURATION chinese_zh ADD MAPPING FOR n,v,a,i,e,l,t WITH simple;" \
