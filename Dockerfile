@@ -46,4 +46,5 @@ ALTER TEXT SEARCH CONFIGURATION chinese_zh ADD MAPPING FOR n,v,a,i,e,l,t WITH si
   && apt-get autoremove -y \
   && rm -rf \
     /zhparser-master \
+    /zhparser.zip \
     /scws-1.2.3
