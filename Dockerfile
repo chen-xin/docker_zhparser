@@ -34,7 +34,7 @@ RUN set -ex \
 		gcc \
 		libc-dev \
 		make \
-  && cd scws-1.2.3 \
+  && cd /scws-1.2.3 \
   && ./configure \
   && make install \
   && cd / \
@@ -50,6 +50,7 @@ ALTER TEXT SEARCH CONFIGURATION chinese_zh ADD MAPPING FOR n,v,a,i,e,l,t WITH si
     && apk del .build-deps .fetch-deps \
 	&& rm -rf \
 		/usr/src/postgresql \
-		/pg_jieba-master \
-		/pg_jieba-master.zip \
+		/zhparser-master \
+		/zhparser.zip \
+    /scws-1.2.3 \
 	&& find /usr/local -name '*.a' -delete
