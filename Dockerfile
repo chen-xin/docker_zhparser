@@ -22,7 +22,7 @@ RUN apt-get update \
       gcc \
       make \
       libc-dev \
-      postgresql-server-dev-9.6 \
+      postgresql-server-dev-$PG_VERSION \
       wget \
       unzip \
       ca-certificates \
@@ -42,7 +42,7 @@ CREATE EXTENSION zhparser; \n\
 CREATE TEXT SEARCH CONFIGURATION chinese_zh (PARSER = zhparser); \n\
 ALTER TEXT SEARCH CONFIGURATION chinese_zh ADD MAPPING FOR n,v,a,i,e,l,t WITH simple;" \
 > /docker-entrypoint-initdb.d/init-zhparser.sql \
-  && apt-get purge -y gcc make libc-dev postgresql-server-dev-9.6 \
+  && apt-get purge -y gcc make libc-dev postgresql-server-dev-$PG_VERSION \
   && apt-get autoremove -y \
   && rm -rf \
     /zhparser-master \
