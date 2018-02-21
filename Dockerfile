@@ -5,24 +5,29 @@
 
 FROM postgres
 
-# set source to china mirrors
-# --deplicted--..do not add "\" at end of line, in case that will merge
-# all lines to one and cause error running "apt-get update"
-# RUN echo "deb http://ftp2.cn.debian.org/debian/ jessie main non-free contrib \n\
-# deb http://ftp2.cn.debian.org/debian/ jessie-updates main non-free contrib \n\
-# deb http://ftp2.cn.debian.org/debian/ jessie-backports main non-free contrib \n\
-# deb http://ftp2.cn.debian.org/debian-security/ jessie/updates main non-free contrib \n\
-# deb-src http://ftp2.cn.debian.org/debian/ jessie main non-free contrib \n\
-# deb-src http://ftp2.cn.debian.org/debian/ jessie-updates main non-free contrib \n\
-# deb-src http://ftp2.cn.debian.org/debian/ jessie-backports main non-free contrib \n\
-# deb-src http://ftp2.cn.debian.org/debian-security/ jessie/updates main non-free contrib" > /etc/apt/sources.list
+ARG CN_MIRROR=0
+
+# Uncomment the following command if you have bad internet connection
+# and first download the files into data directory
+# COPY data/pg_jieba.zip /pg_jieba.zip
+
+RUN if [ $CN_MIRROR = 1 ] ; then DEBIAN_VERSION=$(dpkg --status tzdata|grep Provides|cut -f2 -d'-') \
+&& echo "using mirrors for $DEBIAN_VERSION" \
+&& echo "deb http://ftp.cn.debian.org/debian/ $DEBIAN_VERSION main non-free contrib \n\
+deb http://ftp.cn.debian.org/debian/ $DEBIAN_VERSION-updates main non-free contrib \n\
+deb http://ftp.cn.debian.org/debian/ $DEBIAN_VERSION-backports main non-free contrib \n\
+deb http://ftp.cn.debian.org/debian-security/ $DEBIAN_VERSION/updates main non-free contrib \n\
+deb-src http://ftp.cn.debian.org/debian/ $DEBIAN_VERSION main non-free contrib \n\
+deb-src http://ftp.cn.debian.org/debian/ $DEBIAN_VERSION-updates main non-free contrib \n\
+deb-src http://ftp.cn.debian.org/debian/ $DEBIAN_VERSION-backports main non-free contrib \n\
+deb-src http://ftp.cn.debian.org/debian-security/ $DEBIAN_VERSION/updates main non-free contrib" > /etc/apt/sources.list; else echo "No mirror"; fi
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
       gcc \
       make \
       libc-dev \
-      postgresql-server-dev-$PG_VERSION \
+      postgresql-server-dev-$PG_MAJOR \
       wget \
       unzip \
       ca-certificates \
@@ -42,7 +47,7 @@ CREATE EXTENSION zhparser; \n\
 CREATE TEXT SEARCH CONFIGURATION chinese_zh (PARSER = zhparser); \n\
 ALTER TEXT SEARCH CONFIGURATION chinese_zh ADD MAPPING FOR n,v,a,i,e,l,t WITH simple;" \
 > /docker-entrypoint-initdb.d/init-zhparser.sql \
-  && apt-get purge -y gcc make libc-dev postgresql-server-dev-$PG_VERSION \
+  && apt-get purge -y gcc make libc-dev postgresql-server-dev-$PG_MAJOR \
   && apt-get autoremove -y \
   && rm -rf \
     /zhparser-master \
