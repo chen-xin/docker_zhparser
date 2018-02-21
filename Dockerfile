@@ -1,6 +1,12 @@
 # vim:set ft=dockerfile:
 FROM postgres:alpine
 
+ARG CN_MIRROR=0
+
+RUN if [ $CN_MIRROR = 1 ] ; then OS_VER=$(grep main /etc/apk/repositories | sed 's#/#\n#g' | grep "v[0-9]\.[0-9]") \
+  && echo "using mirrors for $OS_VER" \
+  && echo https://mirrors.ustc.edu.cn/alpine/$OS_VER/main/ > /etc/apk/repositories; fi
+
 # Uncomment the following command if you are in China, or preffer other mirror
 # RUN echo -e 'https://mirror.tuna.tsinghua.edu.cn/alpine/v3.5/main/' > /etc/apk/repositories
 
@@ -20,20 +26,12 @@ RUN set -ex \
 		tar \
 	&& wget -q -O - "http://www.xunsearch.com/scws/down/scws-1.2.3.tar.bz2" | tar xjf - \
   && wget -O zhparser.zip "https://github.com/amutu/zhparser/archive/master.zip" \
-	&& wget -O postgresql.tar.bz2 "https://ftp.postgresql.org/pub/source/v$PG_VERSION/postgresql-$PG_VERSION.tar.bz2" \
-	&& echo "$PG_SHA256 *postgresql.tar.bz2" | sha256sum -c - \
-	&& mkdir -p /usr/src/postgresql \
-	&& tar \
-		--extract \
-		--file postgresql.tar.bz2 \
-		--directory /usr/src/postgresql \
-		--strip-components 1 \
-	&& rm postgresql.tar.bz2 \
 	\
 	&& apk add --no-cache --virtual .build-deps \
 		gcc \
 		libc-dev \
 		make \
+    postgresql-dev \
   && cd /scws-1.2.3 \
   && ./configure \
   && make install \
